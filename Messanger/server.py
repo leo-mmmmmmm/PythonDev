@@ -2,11 +2,11 @@ import sys
 import select
 from datetime import datetime
 from socket import socket, AF_INET, SOCK_STREAM, gethostbyname, gethostname
-from homework.JIM.utils import JimRcv, JimSend
-from homework.JIM.config import *
-from homework.logs.info_log_decorator_config import logger
-from homework.logs.info_log_decorator import info_log, log_extra
-from homework.server_db import User, UserHistory, Session
+from JIM.utils import JimRcv, JimSend
+from JIM.config import *
+from logs.info_log_decorator_config import logger
+from logs.info_log_decorator import info_log, log_extra
+from server_db import User, UserHistory, Session
 
 
 class Server:
@@ -52,7 +52,7 @@ class Server:
         session.commit()
         session.close()
 
-    def get_contacts(self):
+    def get_contacts(self, sock):
         session = Session()
         print('Session:', session)
 
@@ -63,14 +63,14 @@ class Server:
             'quantity': quantity
         }
 
-        JimSend(self.conn).send_message(message)
+        JimSend(sock).send_message(message)
 
         for i in range(quantity):
             message = {
                 'action': 'contact_list',
                 'username': self.new_user.all_friends[1].login
             }
-            JimSend(self.conn).send_message(message)
+            JimSend(sock).send_message(message)
         session.close()
 
     def read_requests(self):
@@ -80,8 +80,10 @@ class Server:
 
         for sock in self.r:
             try:
-                data = sock.recv(1024).decode('utf-8')
+                data = JimRcv(sock).get_message()
                 logger.debug(f'Получили сообщение от клиента: {data}')
+
+
                 # responses[sock] = data
                 for sock2 in self.w:
                     responses[sock2] = data
@@ -98,9 +100,16 @@ class Server:
         for sock in self.w:
             if sock in self.requests:
                 try:
-                    # Подготовить и отправить ответ сервера
-                    resp = self.requests[sock].encode('utf-8')
-                    sock.send(resp)
+                    if self.requests[sock][ACTION] == 'get_contacts':
+                        Server.get_contacts(self, sock)
+                    elif self.requests[sock][ACTION] == 'write':
+                        # Подготовить и отправить ответ сервера
+                        resp = {
+                            RESPONSE: 200,
+                            'message': self.requests[sock]['message']
+                        }
+                        print('Ответ::: ', resp)
+                        JimSend(sock).send_message(resp)
                     logger.debug(f'Отвера сервера был отправлен клинету {sock.fileno()} {sock.getpeername()}')
                 except:  # Сокет недоступен, клиент отключился
                     print('Клиент {} {} отключился'.format(sock.fileno(), sock.getpeername()))

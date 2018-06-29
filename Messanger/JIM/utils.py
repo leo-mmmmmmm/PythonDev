@@ -1,5 +1,5 @@
 import json
-from homework_02.logs.info_log_decorator import info_log
+from logs.info_log_decorator import info_log
 
 
 # Кодировка
@@ -64,8 +64,10 @@ class JimSend:
         :return: None
         """
         # Словарь переводим в байты
+        print('Ответ принимаем UTILS_SEND::: ', message)
         bprescence = JimTranslate.dict_to_bytes(message)
         # Отправляем
+        print('Ответ UTILS_SEND::: ', bprescence)
         self.sock.send(bprescence)
 
 
@@ -82,7 +84,9 @@ class JimRcv:
         """
         # Получаем байты
         bresponse = self.sock.recv(1024)
-        # переводим байты в словарь
-        response = JimTranslate.bytes_to_dict(bresponse)
-        # возвращаем словарь
-        return response
+        if bresponse != b'':
+            # переводим байты в словарь
+            response = JimTranslate.bytes_to_dict(bresponse)
+            # возвращаем словарь
+            print('Ответ UTILS_RCV::: ', response)
+            return response

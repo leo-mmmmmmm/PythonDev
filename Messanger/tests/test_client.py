@@ -2,8 +2,8 @@ import time
 import json
 from pytest import raises
 import socket
-from homework_03.client import Client
-from homework_03.errors import UsernameToLongError, ResponseCodeLenError, MandatoryKeyError, \
+from client import Client
+from errors import UsernameToLongError, ResponseCodeLenError, MandatoryKeyError, \
     ResponseCodeError, WrongAnswerError
 
 

@@ -1,4 +1,4 @@
-from homework.logs.info_log_decorator_config import logger
+from logs.info_log_decorator_config import logger
 import inspect
 
 

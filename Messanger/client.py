@@ -1,10 +1,10 @@
 import time
 from socket import socket, AF_INET, SOCK_STREAM
-from homework.errors import UsernameToLongError, ResponseCodeLenError, MandatoryKeyError, \
+from errors import UsernameToLongError, ResponseCodeLenError, MandatoryKeyError, \
     ResponseCodeError
-from homework.JIM.utils import JimSend, JimRcv
-from homework.JIM.config import *
-from homework.logs.info_log_decorator_config import logger
+from JIM.utils import JimSend, JimRcv
+from JIM.config import *
+from logs.info_log_decorator_config import logger
 
 ADDRESS = ('localhost', 8777)
 
@@ -161,24 +161,32 @@ class Actions:
         self.sock = sock
 
     def write_client(self):
+        message = {
+            ACTION: 'write',
+            'message': '',
+            TIME: time.time()
+        }
 
         while True:
-            msg = input('Ваше сообщение: ')
-            logger.info(f'Введено сообщение: { msg }')
-            if msg == '-exit':
+            message['message'] = input('Ваше сообщение: ')
+
+            # TODO: logger.info(f'Введено сообщение: { message['message'] }')
+            if message['message'] == '-exit':
                 logger.debug(print(f'Клиент { self.sock.fileno() } { self.sock.getpeername() } отключился.'))
                 break
 
-            self.sock.send(msg.encode('utf-8'))  # Отправить!
+            JimSend(self.sock).send_message(message)
+            #self.sock.send(message.encode('utf-8'))  # Отправить!
             logger.debug('Сообщение было успешно отправлено.')
 
-            data = self.sock.recv(1024).decode('utf-8')
+            data = JimRcv(self.sock).get_message()
+
             print(f'Вы отправили: { data }')
 
     def read_client(self):
 
         while True:
-            data = self.sock.recv(1024).decode('utf-8')
+            data = JimRcv(self.sock).get_message()
             logger.debug(f'Пользователь получил ответ: { data }')
             print(f'Ответ: { data }')
 
@@ -189,12 +197,12 @@ class Actions:
             TIME: time.time(),
         }
         JimSend(self.sock).send_message(message)
-        response = JimRcv(self.sock).get_message()
-        response = translate_message(response)
-        logger.debug(f'Ответ сервера: { response }')
-        print(response)
+        data = JimRcv(self.sock).get_message()
+        # TODO: response = translate_message(response)
+        logger.debug(f'Ответ сервера: { data }')
+        print(data)
 
-        for i in range(response['quantity']):
+        for i in range(data['quantity']):
             response = JimRcv(self.sock).get_message()
             print(response)
 

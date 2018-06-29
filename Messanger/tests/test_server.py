@@ -1,5 +1,5 @@
 import time
-from homework_02.clients_with_choice.server import presence_response
+from clients_with_choice.server import presence_response
 
 
 def test_presence_response():
