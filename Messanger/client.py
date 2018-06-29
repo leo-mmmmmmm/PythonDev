@@ -176,19 +176,18 @@ class Actions:
                 break
 
             JimSend(self.sock).send_message(message)
-            #self.sock.send(message.encode('utf-8'))  # Отправить!
             logger.debug('Сообщение было успешно отправлено.')
 
             data = JimRcv(self.sock).get_message()
 
-            print(f'Вы отправили: { data }')
+            print(f'Вы отправили: { data["message"] }')
 
     def read_client(self):
 
         while True:
             data = JimRcv(self.sock).get_message()
-            logger.debug(f'Пользователь получил ответ: { data }')
-            print(f'Ответ: { data }')
+            logger.debug(f'Пользователь получил ответ: { data["message"] }')
+            print(f'Ответ: { data["message"] }')
 
     def get_contacts(self):
         # Формируем словарь сообщения
@@ -196,11 +195,10 @@ class Actions:
             ACTION: 'get_contacts',
             TIME: time.time(),
         }
-        print('отдали !!!!', message)
+
         JimSend(self.sock).send_message(message)
 
         data = JimRcv(self.sock).get_message()
-        print('ПОЛУЧИЛИ !!!!', data)
         # TODO: response = translate_message(response)
         logger.debug(f'Ответ сервера: { data }')
         print(data)

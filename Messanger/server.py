@@ -101,7 +101,6 @@ class Server:
             if sock in self.requests:
                 try:
                     if self.requests[sock][ACTION] == 'get_contacts':
-                        print('ЭТО СЕРВЕР', self.requests[sock])
                         Server.get_contacts(self, sock)
                     elif self.requests[sock][ACTION] == 'write':
                         # Подготовить и отправить ответ сервера
@@ -109,7 +108,6 @@ class Server:
                             RESPONSE: 200,
                             'message': self.requests[sock]['message']
                         }
-                        print('Ответ::: ', resp)
                         JimSend(sock).send_message(resp)
                     logger.debug(f'Отвера сервера был отправлен клинету {sock.fileno()} {sock.getpeername()}')
                 except:  # Сокет недоступен, клиент отключился
