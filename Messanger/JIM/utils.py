@@ -64,10 +64,9 @@ class JimSend:
         :return: None
         """
         # Словарь переводим в байты
-        print('Ответ принимаем UTILS_SEND::: ', message)
         bprescence = JimTranslate.dict_to_bytes(message)
         # Отправляем
-        print('Ответ UTILS_SEND::: ', bprescence)
+        print('SEND ', bprescence)
         self.sock.send(bprescence)
 
 
@@ -88,5 +87,4 @@ class JimRcv:
             # переводим байты в словарь
             response = JimTranslate.bytes_to_dict(bresponse)
             # возвращаем словарь
-            print('Ответ UTILS_RCV::: ', response)
             return response

@@ -50,11 +50,11 @@ class Server:
         session.add(new_user_history)
 
         session.commit()
-        session.close()
 
     def get_contacts(self, sock):
         session = Session()
         print('Session:', session)
+        print('USER ', self.new_user)
 
         quantity = len(self.new_user.all_friends)
 
@@ -101,6 +101,7 @@ class Server:
             if sock in self.requests:
                 try:
                     if self.requests[sock][ACTION] == 'get_contacts':
+                        print('ЭТО СЕРВЕР', self.requests[sock])
                         Server.get_contacts(self, sock)
                     elif self.requests[sock][ACTION] == 'write':
                         # Подготовить и отправить ответ сервера

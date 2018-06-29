@@ -196,8 +196,11 @@ class Actions:
             ACTION: 'get_contacts',
             TIME: time.time(),
         }
+        print('отдали !!!!', message)
         JimSend(self.sock).send_message(message)
+
         data = JimRcv(self.sock).get_message()
+        print('ПОЛУЧИЛИ !!!!', data)
         # TODO: response = translate_message(response)
         logger.debug(f'Ответ сервера: { data }')
         print(data)
