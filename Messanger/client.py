@@ -126,33 +126,33 @@ class Client:
             logger.debug('Неправльно введенные данные при выборе функции.')
             Client.choice(self)
 
-    def presence(self):
-        # Создаем сообщение
-        self.presence = Client.create_presence(self)
+    def __init__(self, login):
 
+        self.login = login
+
+
+        # Получаем логин и пароль
+        self.get_login_pas()
+        self.connect()
+        self.choice()
+
+    def connect(self):
+        # Соединиться с сервером
+        self.sock = socket(AF_INET, SOCK_STREAM)
+        self.sock.connect(ADDRESS)
+        # Создаем сообщение
+        self.presence = self.create_presence()
         # Отсылаем сообщение
         logger.debug('Отправляем presence-message.')
         JimSend(self.sock).send_message(self.presence)
-
         # Получаем ответ
         logger.debug('Получаем ответ сервера.')
         response = JimRcv(self.sock).get_message()
-
         # Проверяем ответ
         logger.debug('Проверяем ответ сервера.')
         response = translate_message(response)
         logger.debug(f'Ответ сервера: {response}')
-        print(response)
-
-        Client.choice(self)
-
-    def __init__(self):
-        self.sock = socket(AF_INET, SOCK_STREAM)
-        # Соединиться с сервером
-        self.sock.connect(ADDRESS)
-        # Получаем логин и пароль
-        Client.get_login_pas(self)
-        Client.presence(self)
+        return response
 
 
 class Actions:
@@ -211,7 +211,7 @@ class Actions:
 
 
 if __name__ == '__main__':
-    Client()
+    client = Client('Leonid')
 
 
 
