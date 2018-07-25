@@ -113,7 +113,7 @@ class Server:
                     self.clients.remove(sock)
 
     def __init__(self):
-        address = ('', 8777)
+        address = ('', 8888)
 
         try:
             addr = sys.argv[1]
@@ -122,7 +122,7 @@ class Server:
         try:
             port = int(sys.argv[2])
         except IndexError:
-            port = 8777
+            port = 8888
         except ValueError:
             print('Порт должен быть целым числом')
             sys.exit(0)
@@ -151,7 +151,6 @@ class Server:
                 logger.info(f'Клиенту был отправлен ответ: {response}')
 
                 self.connect_to_db()
-                print('Done 1')
                 # Выполним вход
                 Server.login(self)
 
@@ -185,12 +184,12 @@ class Server:
         self.login = self.presence[USER][LOGIN]
         self.password = self.presence[USER][PASSWORD]
 
-        user_in_mas = self.session.query(User).filter(User.login == self.login).all()
-        self.user = self.session.query(User).filter(User.login == self.login).all()[0]
-        if user_in_mas == []:
+        self.user = self.session.query(User).filter(User.login == self.login).all()
+
+        if self.user == []:
             self.add_user_db()
         else:
-            print('Done 2')
+            self.user = self.user[0]
             if self.user.password != self.password:
                 self.change_password()
 

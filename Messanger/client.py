@@ -2,11 +2,14 @@ import time
 from socket import socket, AF_INET, SOCK_STREAM
 from errors import UsernameToLongError, ResponseCodeLenError, MandatoryKeyError, \
     ResponseCodeError
+from threading import Thread
+
 from JIM.utils import JimSend, JimRcv
 from JIM.config import *
 from logs.info_log_decorator_config import logger
+import chat_base
 
-ADDRESS = ('localhost', 8777)
+ADDRESS = ('localhost', 8888)
 
 
 def translate_message(response):
@@ -158,34 +161,24 @@ class Actions:
     def __init__(self, sock):
         self.sock = sock
 
-    def write_client(self):
+    def start_chat(self):
         message = {
             ACTION: 'write',
             'message': '',
             TIME: time.time()
         }
+        # Запускаем поток для написания.
+        sender = chat_base.ConsoleHandler(self.sock).send(message)
+        th_sender = Thread(target=sender)
 
-        while True:
-            message['message'] = input('Ваше сообщение: ')
-
-            # TODO: logger.info(f'Введено сообщение: { message['message'] }')
-            if message['message'] == '-exit':
-                logger.debug(print(f'Клиент { self.sock.fileno() } { self.sock.getpeername() } отключился.'))
-                break
-
-            JimSend(self.sock).send_message(message)
-            logger.debug('Сообщение было успешно отправлено.')
-
-            data = JimRcv(self.sock).get_message()
-
-            print(f'Вы отправили: { data["message"] }')
+        th_sender.start()
 
     def read_client(self):
+        # Запускаем поток для чтения.
+        listener = chat_base.Receiver(self.sock)
+        th_listen = Thread(target=listener)
 
-        while True:
-            data = JimRcv(self.sock).get_message()
-            logger.debug(f'Пользователь получил ответ: { data["message"] }')
-            print(f'Ответ: { data["message"] }')
+        th_listen.start()
 
     def get_contacts(self):
         # Формируем словарь сообщения
