@@ -5,7 +5,7 @@ import socket
 # Проверим версию SQLAlchemy
 try:
     import sqlalchemy
-    print('Версия SQLAlchemy: ', sqlalchemy.__version__)
+    # print('Версия SQLAlchemy: ', sqlalchemy.__version__)
 except ImportError:
     print('Библиотека SQLAlchemy не найдена')
     sys.exit(13)
@@ -34,7 +34,7 @@ friendship = Table(
 class User(Base):
     __tablename__ = 'Users'
     id = Column(Integer, primary_key=True)
-    login = Column(String)
+    login = Column(String, unique=True)
     password = Column(String)
     name = Column(String)
     last_name = Column(String)
@@ -95,3 +95,16 @@ engine = create_engine('sqlite:///users_db.sqlite', echo=False)
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
+
+# session = Session()
+#
+# new = User('Leo', '123')
+# session.add(new)
+# session.commit()
+#
+# my_us = session.query(User).filter(User.login == 'Leo')
+#
+#
+#
+# print(my_us)
+

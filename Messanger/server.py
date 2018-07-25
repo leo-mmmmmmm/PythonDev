@@ -33,9 +33,6 @@ class Server:
 
     def add_user_db(self):
 
-        session = Session()
-        print('Session:', session)
-
         # Логин и пароль пользователя
         self.new_user = User(self.presence[USER][LOGIN], self.presence[USER][PASSWORD])
 
@@ -46,14 +43,13 @@ class Server:
             self.new_user.id
         )
 
-        session.add(self.new_user)
-        session.add(new_user_history)
+        self.session.add(self.new_user)
+        self.session.add(new_user_history)
 
-        session.commit()
+        self.session.commit()
 
     def get_contacts(self, sock):
-        session = Session()
-        print('Session:', session)
+
         print('USER ', self.new_user)
 
         quantity = len(self.new_user.all_friends)
@@ -71,7 +67,7 @@ class Server:
                 'username': self.new_user.all_friends[1].login
             }
             JimSend(sock).send_message(message)
-        session.close()
+        self.session.close()
 
     def read_requests(self):
         # Чтение запросов из списка клиентов
@@ -154,8 +150,10 @@ class Server:
                 JimSend(self.conn).send_message(response)
                 logger.info(f'Клиенту был отправлен ответ: {response}')
 
-                # Добавим информацию о пользователе
-                Server.add_user_db(self)
+                self.connect_to_db()
+                print('Done 1')
+                # Выполним вход
+                Server.login(self)
 
             except OSError as e:
                 pass  # timeout Вышел
@@ -178,6 +176,29 @@ class Server:
 
                 self.requests = Server.read_requests(self)  # Сохраним запросы клиентов
                 Server.write_responses(self)  # Выполним отправку ответов клиентам
+
+    def connect_to_db(self):
+        self.session = Session()
+        print('Session:', self.session)
+
+    def login(self):
+        self.login = self.presence[USER][LOGIN]
+        self.password = self.presence[USER][PASSWORD]
+
+        user_in_mas = self.session.query(User).filter(User.login == self.login).all()
+        self.user = self.session.query(User).filter(User.login == self.login).all()[0]
+        if user_in_mas == []:
+            self.add_user_db()
+        else:
+            print('Done 2')
+            if self.user.password != self.password:
+                self.change_password()
+
+    def change_password(self):
+        self.user.password == self.password
+
+
+
 
 
 if __name__ == '__main__':

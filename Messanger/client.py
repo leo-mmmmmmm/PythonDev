@@ -44,17 +44,6 @@ def translate_message(response):
 
 class Client:
 
-    def get_login_pas(self):
-        print('Введите Ваш логин и пароль или выйдете, набрав -escape')
-
-        reply = input()
-
-        if reply == '-escape':
-            raise ERROR
-        else:
-            self.login = reply
-            self.password = input()
-
     def create_presence(self):
         """
         Формируем ​​presence-сообщение
@@ -126,15 +115,24 @@ class Client:
             logger.debug('Неправльно введенные данные при выборе функции.')
             Client.choice(self)
 
-    def __init__(self, login):
-
-        self.login = login
-
+    def __init__(self):
 
         # Получаем логин и пароль
         self.get_login_pas()
+        # Подключаемся
         self.connect()
         self.choice()
+
+    def get_login_pas(self):
+        print('Введите Ваш логин и пароль или выйдете, набрав -escape')
+
+        reply = input()
+
+        if reply == '-escape':
+            raise ERROR
+        else:
+            self.login = reply
+            self.password = input()
 
     def connect(self):
         # Соединиться с сервером
@@ -211,7 +209,7 @@ class Actions:
 
 
 if __name__ == '__main__':
-    client = Client('Leonid')
+    client = Client()
 
 
 
