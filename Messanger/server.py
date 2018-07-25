@@ -1,7 +1,11 @@
 import sys
 import select
+import time
 from datetime import datetime
 from socket import socket, AF_INET, SOCK_STREAM, gethostbyname, gethostname
+from threading import Thread
+
+import chat_base
 from JIM.utils import JimRcv, JimSend
 from JIM.config import *
 from logs.info_log_decorator_config import logger
@@ -154,6 +158,11 @@ class Server:
                 # Выполним вход
                 Server.login(self)
 
+                sender = TimeServer(self.conn, 5)
+                th_sender = Thread(target=sender)
+
+                th_sender.start()
+
             except OSError as e:
                 pass  # timeout Вышел
             else:
@@ -197,7 +206,27 @@ class Server:
         self.user.password == self.password
 
 
+class TimeServer(chat_base.SockHandler):
+    ''' Класс для отправки времени через заданные интервалы
+    '''
+    def __init__(self, sock, timeout):
+        super().__init__(sock)
+        self.sock = sock
+        self.timeout = timeout
 
+    def __call__(self):
+        self.is_alive = True
+        while True:
+            if not self.is_alive:
+                break
+            time.sleep(self.timeout)
+            data = {
+                ACTION: TIME,
+                RESPONSE: 200,
+                'message': str(time.ctime())
+            }
+
+            JimSend(self.sock).send_message_all(data)
 
 
 if __name__ == '__main__':

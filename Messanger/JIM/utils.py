@@ -68,6 +68,12 @@ class JimSend:
         # Отправляем
         self.sock.send(bprescence)
 
+    def send_message_all(self, message):
+        # Словарь переводим в байты
+        bprescence = JimTranslate.dict_to_bytes(message)
+        # Отправляем
+        self.sock.sendall(bprescence)
+
 
 class JimRcv:
 

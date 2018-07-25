@@ -97,10 +97,10 @@ class Client:
                 Client.choice(self)
             elif reply[1:] == 'w':
                 logger.debug('Пользователь. Отправка сообщений.')
-                Actions(self.sock).write_client()
+                Actions(self.sock).start_chat()
             elif reply[1:] == 'r':
                 logger.debug('Пользователь. Получение сообщений.')
-                Actions(self.sock).read_client()
+                Actions(self.sock).start_chat()
             elif reply[1:] == 'get_contacts':
                 Actions(self.sock).get_contacts()
             elif reply[1:] == 'exit':
@@ -167,18 +167,18 @@ class Actions:
             'message': '',
             TIME: time.time()
         }
-        # Запускаем поток для написания.
-        sender = chat_base.ConsoleHandler(self.sock).send(message)
-        th_sender = Thread(target=sender)
 
-        th_sender.start()
-
-    def read_client(self):
         # Запускаем поток для чтения.
         listener = chat_base.Receiver(self.sock)
         th_listen = Thread(target=listener)
 
         th_listen.start()
+
+        # Запускаем поток для написания.
+        sender = chat_base.ConsoleHandler(self.sock).send(message)
+        th_sender = Thread(target=sender)
+
+        th_sender.start()
 
     def get_contacts(self):
         # Формируем словарь сообщения
